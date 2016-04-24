@@ -19,15 +19,18 @@ class Ball(object):
     radius : float
         radius of the ball
     position : array
-        coordinates of the ball
+        x/y coordinates of the ball
+    velocity : array
+        x/y velocity of the ball
     status : string
         the status of the ball
     """
     
-    def __init__(self, name, mass, radius, position):
+    def __init__(self, name, mass, radius, position, velocity):
         
         self.name = name
         self.position = position
+        self.velocity = velocity
         self.status = "Present"
         
         if mass > 0:
@@ -51,6 +54,9 @@ class Ball(object):
     
     def get_position(self):
         return self.position
+    
+    def get_velocity(self):
+        return self.velocity
     
     def get_status(self):
         return self.status
