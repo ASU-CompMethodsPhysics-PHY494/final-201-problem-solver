@@ -1,43 +1,48 @@
 import numpy as np
 
-def new_velocities(positions, velocities, radii, masses, walls):
+def new_velocities(balls, table):
     """Calculates the change in velocities due to each collision and sums them up to find the new velocities
     
     Parameters
     ----------
-    positions : array
-        x and y coordinates of the particles
-    velocities : array
-        x and y velocities of the particles
-    radii : array
-        the radii of the particles
-    masses : array
-        the masses of the particles
-    walls : ??
+    balls : object
+        contains all the ball objects with the following parameters
+        
+        masses : array
+            masses of the balls
+        radii : array
+            radii of the balls
+        positions : array
+            x/y coordinates of the balls
+        velocities : array
+            x/y velocities of the balls
+    
+    table : object
+        contains the dimensions of the table and the positions of the walls
+    
     
     Returns
     -------
     velocities : array
-        updates the velocities with the new velocities after calculating each collision
+        updates the velocities for each ball the new velocities after calculating each collision
     """
-    delta_velocities_total = wall_collision(positions, velocities, radii, walls) + \
-                             ball_collision(positions, velocities, radii, masses)
-    velocities += delta_velocities_total
+    # old velocities plus the changes due to the collisions with the walls and with other balls
+    new_velocities = balls.velocities() + wall_collision(balls, table) + ball_collision(balls)
     
-    return velocities
+    balls.set_velocities(new_velocities)
 
-def wall_collision(positions, velocities, radii, walls):
+def wall_collision(balls, table):
     """Takes the current positions and velocities of the particles. If they hit a wall then reverse the velocity for that direction.
     Only applies to rectangular boundaries
     
     Parameters
     ----------
-    positions : array
-        x and y coordinates of the particles
-    velocities : array
-        x and y velocities of the particles
     radii : array
-        the radii of the particles
+        radii of the balls
+    positions : array
+        x/y coordinates of the balls
+    velocities : array
+        x/y velocities of the balls
     walls : ??
     
     Returns
@@ -45,6 +50,11 @@ def wall_collision(positions, velocities, radii, walls):
     delta_velocities : array
         change in x and y velocities of the particles due to collisions with the walls
     """
+    positions = balls.positions
+    velocities = balls.velocities
+    radii = balls.radii
+    
+    
     # coordinates of the edges of the wall
     wall_left = ??
     wall_right = ??
@@ -69,25 +79,31 @@ def wall_collision(positions, velocities, radii, walls):
     
     return delta_velocities
 
-def ball_collision(positions, velocities, radii, masses):
-    """Takes the current positions and velocities of the particles. If their radii overlap then calculate their new velocities.
+def ball_collision(balls):
+    """Takes the current positions and velocities of the balls. If their radii overlap then calculate their new velocities.
     
     Parameters
     ----------
-    positions : array
-        x and y coordinates of the particles
-    velocities : array
-        x and y velocities of the particles
-    radii : array
-        the radii of the particles
     masses : array
-        the masses of the particles
+        masses of the balls
+    radii : array
+        radii of the balls
+    positions : array
+        x/y coordinates of the balls
+    velocities : array
+        x/y velocities of the balls
+
     
     Returns
     -------
     delta_velocities : array
         change in x and y velocities of the particles due to collisions between balls
     """
+    positions = balls.positions
+    velocities = balls.velocities
+    radii = balls.radii
+    masses = balls.masses
+    
     delta_velocities = np.zeros_like(velocities)
     n = positions.shape[0]
     
