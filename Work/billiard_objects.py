@@ -1,23 +1,41 @@
 # This module creates the Objects for the balls, the balls on table, and the table itself
 # PHY 494 - Billiard Simulation Final
 
-#-------------------------------------------------------------------------------------------------------------------------------------------
+import numpy as np
+
+#------------------------------------------------------------------------------------------------------------------------------------------
 # Define all of the Objects
-#-------------------------------------------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------
 
 # Define a Ball
 class Ball(object):
+    """ 
+    Parameters
+    ----------
+    name : string
+        name of the ball
+    mass : float
+        mass of the ball
+    radius : float
+        radius of the ball
+    position : array
+        coordinates of the ball
+    status : string
+        the status of the ball
+    """
+    
     def __init__(self, name, mass, radius, position):
         
         self.name = name
         self.position = position
+        self.status = "Present"
         
-        if mass >= 0:
+        if mass > 0:
             self.mass = mass
         else:
             raise ValueError("Mass needs to be positive and nonzero")
         
-        if radius >= 0:
+        if radius > 0:
             self.radius = radius
         else:
             raise ValueError("Radius needs to be positive and nonzero")
@@ -33,9 +51,14 @@ class Ball(object):
     
     def get_position(self):
         return self.position
-
     
-# Define the Holes
+    def get_status(self):
+        return self.status
+    
+    def remove(self, new_value):
+        self.status = "Removed"
+    
+    
 class Holes(object):
     
     def __init__(self,x,y):
@@ -43,11 +66,15 @@ class Holes(object):
         self.y = y
         
         return (self.x, self.y)
-    
+
+
         
-# Define the Table
 class Table(object):
+    """Contains all of the relevant parameters of the table
     
+    Parameters
+    ----------
+    """
     def __init__(self):
         self.holes = []
         
@@ -58,7 +85,6 @@ class Table(object):
         return self.holes
     
     
-# Define the Balls on Table
 class Table_Balls(object):
     
     def __init__(self):
@@ -78,16 +104,19 @@ class Table_Balls(object):
                     self.position.remove(t)
 
 
-#-------------------------------------------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------
 # Declare the Objects
-#-------------------------------------------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------
 
-Table_Balls.add_balls(Ball(cue, 0.165, 5.7, (50,50))
-Table_Balls.add_balls(Ball(ball_1, 0.165, 5.7, (30,100))
-Table_Balls.add_balls(Ball(ball_2, 0.165, 5.7, (40,150))
-Table_Balls.add_balls(Ball(ball_3, 0.165, 5.7, (60,150))
-Table_Balls.add_balls(Ball(ball_4, 0.165, 5.7, (70,100))
-print(Table_Balls.get_balls())
-                      
-#not sure if there is an easy way to add many points without having to type each one
-Table.add_holes(Holes(
+cue = Ball('cue', 0.165, 5.7, np.array([50, 50]))
+ball_1 = Ball('ball 1', .165, 5.7, np.array([30, 100]))
+ball_2 = Ball('ball 2', .165, 5.7, np.array([40, 150]))
+ball_3 = Ball('ball 3', .165, 5.7, np.array([60, 150]))
+ball_4 = Ball('ball 4', .165, 5.7, np.array([70, 100]))
+
+balls = Table_Balls()
+balls.add_balls(cue)
+balls.add_balls(ball_1)
+balls.add_balls(ball_2)
+balls.add_balls(ball_3)
+balls.add_balls(ball_4)
