@@ -22,15 +22,18 @@ class Ball(object):
         x/y coordinates of the ball
     velocity : array
         x/y velocity of the ball
+    delta_velocity : array
+        change in the x/y velocity before being updated after collision calculations
     status : string
         the status of the ball
     """
     
-    def __init__(self, name, mass, radius, position, velocity=0):
+    def __init__(self, name, mass, radius, position=np.zeros(2, dtype='float64'), velocity=np.zeros(2, dtype='float64')):
         
         self.name = name
         self.position = position
         self.velocity = velocity
+        self.delta_velocity = np.zeros_like(self.velocity, dtype='float64')
         self.status = "Present"
         
         if mass > 0:
@@ -42,111 +45,62 @@ class Ball(object):
             self.radius = radius
         else:
             raise ValueError("Radius needs to be positive and nonzero")
-        
+    
+    def set_position(self, new_value):
+        self.position = new_value
+    
     def set_velocity(self, new_value):
         self.velocity = new_value
-   
+    
+    def add_delta_velocity(self, delta_vx, delta_vy):
+        """Adds a component of the change in velocity"""
+        self.delta_velocity += np.array([delta_vx, delta_vy], dtype='float64')
+    
+    def update_velocity(self):
+        """Takes the current delta_velocity and adds it to the current velocity, resets delta_velocity back to 0"""
+        self.set_velocity(self.velocity + self.delta_velocity)
+        self.delta_velocity = np.zeros_like(self.delta_velocity, dtype='float64')
+    
     def remove(self):
         self.status = "Removed"
     
-    def unremove(self):
-        self.status = "Present"
-    
-    
-class Holes(object):
-    
-    def __init__(self,x,y):
-        self.x = x
-        self.y = y
-        
-        return (self.x, self.y)
-
-
+       
 class Table(object):
-    """Contains all of the relevant parameters of the table
+    """Contains the dimensions of the table and all its walls
     
     Parameters
     ----------
+    x_left : float
+        x coordinate of the left wall
+    x_right : float
+        x coordinate of the right wall
+    y_bottom : float
+        y coordinate of the bottom wall
+    y_top : float
+        y coordinate of the top wall
     """
-    def __init__(self):
-        self.holes = []
-        
-    def add_holes(self, addition):
-        self.holes.append(addition)
-        
-    def get_holes(self):
-        return self.holes
+    def __init__(self, xdims, ydims):
+        self.x_left = -.5*xdims
+        self.x_right = .5*xdims
+        self.y_bottom = -.5*ydims
+        self.y_top = .5*ydims
     
     
-class Table_Balls(object):
-    """Contains multiple balls"""
-    def __init__(self):
-        self.table_balls = []
-        
-    def add_ball(self, addition):
-        self.table_balls.append(addition)
-        
-    def get_balls(self):
-        return self.table_balls
-    
-    def names(self):
-        names = []
-        for ball in self.table_balls:
-            names.append(ball.name)
-        return names
-    
-    def masses(self):
-        masses = []
-        for ball in self.table_balls:
-            masses.append(ball.mass)
-        return masses
-    
-    def radii(self):
-        radii = []
-        for ball in self.table_balls:
-            radii.append(ball.radius)
-        return radii
-    
-    def positions(self):
-        positions = []
-        for ball in self.table_balls:
-            positions.append(ball.position)
-        return positions
-    
-    def velocities(self):
-        velocities = []
-        for ball in self.table_balls:
-            velocities.append(ball.velocity)
-        return velocities
-    
-    def set_velocities(self, new_velocities):
-        if new_velocities[0] != self.table_balls.num_balls():
-            raise ValueError("The number of values for velocities must equal the number of balls")
-        for i, ball_i in enumerate(self.table_balls):
-            ball_i.set_velocity(new_values[i])
-    
-    def statuses(self):
-        statuses = []
-        for ball in enumerate(self.table_balls):
-            statuses.append(ball.status)
-        return statuses
-    
-    def num_balls(self):
-        return len(self.table_balls)
-
 #------------------------------------------------------------------------------------------------------------------------------------------
 # Declare the Objects
 #------------------------------------------------------------------------------------------------------------------------------------------
 
-cue = Ball('cue', 0.165, 5.7, np.array([50, 50]))
-ball_1 = Ball('ball 1', .165, 5.7, np.array([30, 100]))
-ball_2 = Ball('ball 2', .165, 5.7, np.array([40, 150]))
-ball_3 = Ball('ball 3', .165, 5.7, np.array([60, 150]))
-ball_4 = Ball('ball 4', .165, 5.7, np.array([70, 100]))
-
-balls = Table_Balls()
-balls.add_ball(cue)
-balls.add_ball(ball_1)
-balls.add_ball(ball_2)
-balls.add_ball(ball_3)
-balls.add_ball(ball_4)
+def initialize_objects():
+    """Initializes and returns a list of all the ball objects"""
+    
+    cue = Ball('cue', 0.165, 5.7, np.array([0, 50], dtype='float64'))
+    ball_1 = Ball('ball 1', .165, 5.7, np.array([-20, 100], dtype='float64'))
+    ball_2 = Ball('ball 2', .165, 5.7, np.array([-10, 150], dtype='float64'))
+    ball_3 = Ball('ball 3', .165, 5.7, np.array([10, 150], dtype='float64'))
+    ball_4 = Ball('ball 4', .165, 5.7, np.array([20, 100], dtype='float64'))
+    
+    balls = [cue, ball_1, ball_2, ball_3, ball_4]
+    
+    table = Table(100, 200)
+    
+    return balls, table
