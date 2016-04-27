@@ -16,7 +16,7 @@ def reset_position_velocity(*args):
     for ball in args:
         ball.set_position(np.zeros(2, dtype='float64'))
         ball.set_velocity(np.zeros(2, dtype='float64'))
-        ball.add_delta_velocity(-ball.delta_velocity[0], -ball.delta_velocity[1])    # subtracts the current value
+        ball.set_delta_velocity(np.zeros(2, dtype='float64'))    # subtracts the current value
     
     
 def test_1d_ball_collision():

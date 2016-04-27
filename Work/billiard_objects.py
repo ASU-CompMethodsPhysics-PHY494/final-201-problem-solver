@@ -1,4 +1,4 @@
-# This module creates the Objects for the balls, the balls on table, and the table itself
+# This module creates the Objects for the balls and the table itself
 # PHY 494 - Billiard Simulation Final
 
 import numpy as np
@@ -33,7 +33,7 @@ class Ball(object):
         self.name = name
         self.position = position
         self.velocity = velocity
-        self.delta_velocity = np.zeros_like(self.velocity, dtype='float64')
+        self.delta_velocity = np.zeros(2, dtype='float64')
         self.status = "Present"
         
         if mass > 0:
@@ -51,6 +51,12 @@ class Ball(object):
     
     def set_velocity(self, new_value):
         self.velocity = new_value
+        
+    def reset_velocity(self):
+        self.velocity = np.zeros(2, dtype='float64')
+        
+    def reset_delta_velocity(self):
+        self.delta_velicity = np.zeros(2, dtype='float64')
     
     def add_delta_velocity(self, delta_vx, delta_vy):
         """Adds a component of the change in velocity"""
@@ -59,7 +65,7 @@ class Ball(object):
     def update_velocity(self):
         """Takes the current delta_velocity and adds it to the current velocity, resets delta_velocity back to 0"""
         self.set_velocity(self.velocity + self.delta_velocity)
-        self.delta_velocity = np.zeros_like(self.delta_velocity, dtype='float64')
+        self.reset_delta_velocity()
     
     def remove(self):
         self.status = "Removed"
@@ -90,14 +96,33 @@ class Table(object):
 # Declare the Objects
 #------------------------------------------------------------------------------------------------------------------------------------------
 
-def initialize_objects():
-    """Initializes and returns a list of all the ball objects"""
+
+def create_objects(mass=0.165, radius=5.7, table_xdims=100, table_ydims=200):
+    """Creates and returns a list of all the ball objects and the table object
     
-    cue = Ball('cue', 0.165, 5.7, np.array([0, 50], dtype='float64'))
-    ball_1 = Ball('ball 1', .165, 5.7, np.array([-20, 100], dtype='float64'))
-    ball_2 = Ball('ball 2', .165, 5.7, np.array([-10, 150], dtype='float64'))
-    ball_3 = Ball('ball 3', .165, 5.7, np.array([10, 150], dtype='float64'))
-    ball_4 = Ball('ball 4', .165, 5.7, np.array([20, 100], dtype='float64'))
+    Parameters
+    ----------
+    mass : float
+        mass to set the balls to
+    radius : float
+        radius to set the balls to
+    table_xdims : float
+        x dimension extent of the table
+    table_ydims : float
+        y dimension extent of the table
+    
+    Returns
+    -------
+    balls : list
+        list of the ball object
+    table : object
+    """
+    
+    cue = Ball('cue', mass, radius)
+    ball_1 = Ball('ball 1', mass, radius)
+    ball_2 = Ball('ball 2', mass, radius)
+    ball_3 = Ball('ball 3', mass, radius)
+    ball_4 = Ball('ball 4', mass, radius)
     
     balls = [cue, ball_1, ball_2, ball_3, ball_4]
     

@@ -1,67 +1,50 @@
+import billiard_objects
+import collisions
 import numpy as np
 
-#converting velocity to speed for collisions
-def vel2speed(velocities):
-    """ Function converts a velocity from the array in speed
-    which will make collision algorithms easier to write"""
-    
-    for i in range velocities:
-        speeds  ((v[0])**2 + (v[1])**2)**0.5
-    
-    return speeds
+#---------------------------------------------------------------------------------------------------------------------------------------------
+# parameters
+ball_mass = 0.165
+ball_radius = 5.7
+table_xdims = 100
+table_ydims = 200
 
+#---------------------------------------------------------------------------------------------------------------------------------------------
+# creating the objects to use
+balls, table = billiard_objects.create_objects(ball_mass, ball_radius, table_xdims, table_ydims)
 
-#momentum transfer if initial ball completely stops
-def momentumtransfer(velocities):
-    """ Function reveals how the quantity of momentum p = mv
-    is tranferred during a collision. Because mass is identical
-    for every ball it can be neglected"""
-    
-    speeds = vel2speed(velocities)
-    
-    s1 = speeds[0:]
-    s2 = speeds[1:]
-    
-    s2 = s2 + s1
-    s1 = s1 - s1
-    
-    return s1, s2
+#---------------------------------------------------------------------------------------------------------------------------------------------
 
-
-#momentum transfer if initial ball stills has some speed
-def momentumtransfer(velocities):
-    """ Function reveals how the quantity of momentum p = mv
-    is tranferred during a collision. Because mass is identical
-    for every ball it can be neglected"""
+def initialize_balls(balls, cue_velocity):
+    """
+    Takes the ball objects and places them in their starting positions.
+    Sets all the balls velocities to 0 except for the cue which takes on the velocity given.
+    Also sets all delta_velocities to 0 to avoid carrying its value over between simulations.
     
-    speeds = vel2speed(velocities)
-    
-    s1 = speeds[0:]
-    s2 = speeds[1:]
-    
-    s2 = s2 + (s1*0.9)
-    s1 = s1*0.1
-    
-    return s1, s2
-
-
-#how to remove balls from table
-def ballremoval(positions):
-    """ This is written assuming the table is a box of 110 x 200
-    but stills need a function called remove to do the job"""
-    
-    for i in range positions:
-        if i is [0,0]:
-            #remove
-        if i is [0,100]:
-            #remove
-        if i is [0,200]:
-            #remove
-        if i is [100,0]:
-            #remove
-        if i is [100,100]:
-            #remove
-        if i is [100,200]:
-            #remove
+    Parameters
+    ----------
+    balls : list
+        list of all ball objects
+        only affects balls with names "cue", "ball 1", "ball 2", "ball 3", or "ball 4"
+    cue_velocity : array
+        two valued array of the x and y velocity to give the cue
+    """"
+    for ball_i in balls:
+        ball_i.reset_delta_velocity()
+        ball_i.reset_velocity()
             
-    return positions
+        if ball_i.name is "cue":
+            ball_i.set_position(np.array([0, -50], dtype='float64'))
+            ball_i.set_velocity(cue_velocity)    # overwrites the reset above
+            
+        if ball_i.name is "ball 1":
+            ball_i.set_position(np.array([-20, 0], dtype='float64'))
+            
+        if ball_i.name is "ball 2":
+            ball_i.set_position(np.array([-10, 50], dtype='float64'))
+            
+        if ball_i.name is "ball 3":
+            ball_i.set_position(np.array([10, 50], dtype='float64'))
+            
+        if ball_i.name is "ball 4":
+            ball_i.set_position(np.array([20, 0], dtype='float64'))
