@@ -2,18 +2,24 @@ import billiard_objects
 import collisions
 import numpy as np
 
-#---------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------
 # parameters
 ball_mass = 0.165
 ball_radius = 5.7
+hole_radius = 11.4
 table_xdims = 100
 table_ydims = 200
 
-#---------------------------------------------------------------------------------------------------------------------------------------------
-# creating the objects to use
-balls, table = billiard_objects.create_objects(ball_mass, ball_radius, table_xdims, table_ydims)
+dtheta = 30
+break_speed = 100
+dt = .05
+max_sim_time = 500
 
-#---------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------
+# creating the objects to use
+table = billiard_objects.create_objects(ball_mass, ball_radius, hole_radius, table_xdims, table_ydims)
+
+#----------------------------------------------------------------------------------------------------------------------------------
 
 def initialize_balls(balls, cue_velocity):
     """
@@ -30,8 +36,8 @@ def initialize_balls(balls, cue_velocity):
         two valued array of the x and y velocity to give the cue
     """"
     for ball_i in balls:
-        ball_i.reset_delta_velocity()
         ball_i.reset_velocity()
+        ball_i.reset_delta_velocity()
             
         if ball_i.name is "cue":
             ball_i.set_position(np.array([0, -50], dtype='float64'))
@@ -48,3 +54,44 @@ def initialize_balls(balls, cue_velocity):
             
         if ball_i.name is "ball 4":
             ball_i.set_position(np.array([20, 0], dtype='float64'))
+    
+    
+def speed_to_velocity(break_speed, theta):
+    """Converts the break speed and launch angle to x and y components of velocity"""
+    vx = break_speed * np.cos(theta)
+    vy = break_speed * np.sin(theta)
+    return np.array([vx, vy], dtype='float64')
+    
+    
+def ball_removal(balls, holes):
+	"""Checks the positions of all balls and holes, removes any balls that fall within the radius of any hole"""
+	for ball_i in balls:
+		for hole_i in holes:
+			d_sep = np.sqrt(np.sum(ball_i.position-hole_i.position)**2)    # calculates the separation distance
+			if (d_sep + ball_i.radius) < hole_i.radius:
+				ball_i.remove()
+	
+	
+def single_simulation(balls, table, break_speed, theta, dt, max_sim_time):
+    """Runs a single simulation with the ball and table objects, launching the cue ball at break_speed at angle theta
+    
+    Parameters
+    ----------
+    balls : list
+        list of all ball objects
+    table : object
+        contains the parameters of the table
+    break_speed : float
+        the initial speed of the cue ball
+    theta : float
+        the initial angle the cue ball is sent at
+    dt : float
+        the time step between calculations
+    max_sim_time : float
+        max time to run the simulation for, ends if the current time is greater than max_sim_time
+    """
+    # take the break speed and launch angle initialize the balls
+    cue_velocity = speed_to_velocity(break_speed, theta)
+    initialize_balls(balls, cue_velocity)
+    
+    

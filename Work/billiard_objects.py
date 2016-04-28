@@ -3,11 +3,10 @@
 
 import numpy as np
 
-#------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------
 # Define all of the Objects
-#------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------
 
-# Define a Ball
 class Ball(object):
     """ 
     Parameters
@@ -56,7 +55,7 @@ class Ball(object):
         self.velocity = np.zeros(2, dtype='float64')
         
     def reset_delta_velocity(self):
-        self.delta_velicity = np.zeros(2, dtype='float64')
+        self.delta_velocity = np.zeros(2, dtype='float64')
     
     def add_delta_velocity(self, delta_vx, delta_vy):
         """Adds a component of the change in velocity"""
@@ -69,8 +68,8 @@ class Ball(object):
     
     def remove(self):
         self.status = "Removed"
-    
-       
+
+  
 class Table(object):
     """Contains the dimensions of the table and all its walls
     
@@ -85,19 +84,35 @@ class Table(object):
     y_top : float
         y coordinate of the top wall
     """
-    def __init__(self, xdims, ydims):
+    def __init__(self, xdims, ydims, hole_radius):
         self.x_left = -.5*xdims
         self.x_right = .5*xdims
         self.y_bottom = -.5*ydims
         self.y_top = .5*ydims
+        self.balls = []
+        
+        self.holes = np.array([[self.x_left, self.y_bottom], [self.x_right, self.y_bottom], \
+                               [self.x_right, 0], [self.x_right, 0], \
+                               [self.x_left, self.y_top], [self.x_right, self.y_top]])
+        self.hole_radius = hole_radius
     
+    def add_balls(self, *balls):
+        for ball in balls:
+            self.balls.append(ball)
     
-#------------------------------------------------------------------------------------------------------------------------------------------
+    def remove_ball(self, ball):
+        self.balls.remove(ball)
+
+    def reset_balls(self):
+        self.balls = []
+
+        
+#----------------------------------------------------------------------------------------------------------------------------------
 # Declare the Objects
-#------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------
 
 
-def create_objects(mass=0.165, radius=5.7, table_xdims=100, table_ydims=200):
+def create_objects(ball_mass=0.165, ball_radius=5.7, hole_radius = 11.4, table_xdims=100, table_ydims=200):
     """Creates and returns a list of all the ball objects and the table object
     
     Parameters
@@ -117,15 +132,15 @@ def create_objects(mass=0.165, radius=5.7, table_xdims=100, table_ydims=200):
         list of the ball object
     table : object
     """
+    #ball objects and table object
+    cue = Ball('cue', ball_mass, ball_radius)
+    ball_1 = Ball('ball 1', ball_mass, ball_radius)
+    ball_2 = Ball('ball 2', ball_mass, ball_radius)
+    ball_3 = Ball('ball 3', ball_mass, ball_radius)
+    ball_4 = Ball('ball 4', ball_mass, ball_radius)
     
-    cue = Ball('cue', mass, radius)
-    ball_1 = Ball('ball 1', mass, radius)
-    ball_2 = Ball('ball 2', mass, radius)
-    ball_3 = Ball('ball 3', mass, radius)
-    ball_4 = Ball('ball 4', mass, radius)
+    table = Table(100, 200, hole_radius)
     
-    balls = [cue, ball_1, ball_2, ball_3, ball_4]
+    table.add_balls(cue)
     
-    table = Table(100, 200)
-    
-    return balls, table
+    return table

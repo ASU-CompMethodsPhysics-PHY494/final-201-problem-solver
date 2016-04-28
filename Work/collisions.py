@@ -1,37 +1,12 @@
 import numpy as np
 
-def new_velocities(balls, table):
-    """Calculates the change in velocities due to each collision and sums them up to find the new velocities
-    
-    Parameters
-    ----------
-    balls : list
-        contains all the ball objects with the following parameters
-        
-        masses : array
-            masses of the balls
-        radii : array
-            radii of the balls
-        positions : array
-            x/y coordinates of the balls
-        velocities : array
-            x/y velocities of the balls
-    
-    table : object
-        contains the dimensions of the table
-    """
-    delta_velocities_total = wall_collision(balls, table) + ball_collision(balls)
-    
-    for i, ball_i in enumerate(balls):
-        new_velocity = ball_i.velocity + delta_velocities_total[i]
-        ball_i.set_velocity(new_velocity)
-    
-        
-def wall_collisions(balls, table):
+#----------------------------------------------------------------------------------------------------------------------------------
+
+def wall_collisions(table):
     """Takes the current positions and velocities of the particles. If they hit a wall then reverse the velocity for that direction.
     Only applies to rectangular boundaries
     """
-    for ball_i in balls:
+    for ball_i in table.balls:
         if ball_i.status is "Removed":    # only calculates for balls that aren't removed
             continue
         
