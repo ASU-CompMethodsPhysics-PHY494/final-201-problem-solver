@@ -3,8 +3,8 @@ import numpy as np
 #----------------------------------------------------------------------------------------------------------------------------------
 
 def wall_collisions(table):
-    """Takes the current positions and velocities of the particles. If they hit a wall then reverse the velocity for that direction.
-    Only applies to rectangular boundaries
+    """Takes the current positions and velocities of the balls.
+    If they hit a wall then add 2x the velocity in the opposite direction that it hits to its delta_velocity value.
     """
     for ball_i in table.balls:
         if ball_i.status is "Removed":    # only calculates for balls that aren't removed
@@ -26,25 +26,10 @@ def wall_collisions(table):
             delta_vy = -2*np.abs(ball_i.velocity[1])
         ball_i.add_delta_velocity(delta_vx, delta_vy)
 
+        
 def ball_collisions(balls):
     """Takes the current positions and velocities of the balls. If their radii overlap then calculate their new velocities.
-    
-    Parameters
-    ----------
-    masses : array
-        masses of the balls
-    radii : array
-        radii of the balls
-    positions : array
-        x/y coordinates of the balls
-    velocities : array
-        x/y velocities of the balls
-
-    
-    Returns
-    -------
-    delta_velocities : array
-        change in x and y velocities of the particles due to collisions between balls
+    Updates the balls delta_velocity values at the end of the calculation
     """
     for i, ball_i in enumerate(balls):
         for j, ball_j in enumerate(balls[i+1:]):    # avoids calculating for the same collision twice

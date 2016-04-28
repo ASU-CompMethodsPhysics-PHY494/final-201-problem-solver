@@ -63,13 +63,13 @@ def speed_to_velocity(break_speed, theta):
     return np.array([vx, vy], dtype='float64')
     
     
-def ball_removal(balls, holes):
+def ball_removal(table):
 	"""Checks the positions of all balls and holes, removes any balls that fall within the radius of any hole"""
-	for ball_i in balls:
-		for hole_i in holes:
-			d_sep = np.sqrt(np.sum(ball_i.position-hole_i.position)**2)    # calculates the separation distance
-			if (d_sep + ball_i.radius) < hole_i.radius:
-				ball_i.remove()
+	for ball_i in table.balls:
+		for j in range(table.num_holes):
+			d_sep = np.sqrt(np.sum(ball_i.position-table.hole_positions[j])**2)    # calculates the separation distance
+			if (d_sep + ball_i.radius) < table.hole_radius:
+				table.remove_ball(ball_i)
 	
 	
 def single_simulation(balls, table, break_speed, theta, dt, max_sim_time):
@@ -90,8 +90,9 @@ def single_simulation(balls, table, break_speed, theta, dt, max_sim_time):
     max_sim_time : float
         max time to run the simulation for, ends if the current time is greater than max_sim_time
     """
-    # take the break speed and launch angle initialize the balls
+    # initialization
     cue_velocity = speed_to_velocity(break_speed, theta)
     initialize_balls(balls, cue_velocity)
     
+    t_steps = int(max_sim_time / dt) + 1    # +1 to include first and last step
     

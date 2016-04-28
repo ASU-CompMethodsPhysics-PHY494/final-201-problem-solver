@@ -15,7 +15,7 @@ def reset_position_velocity(*balls):
     """Resets the positions and velocities to [0, 0]"""
     for ball in balls[0]:
         ball.set_position(np.zeros(2, dtype='float64'))
-        ball.set_velocity(np.zeros(2, dtype='float64'))
+        ball.reset_velocity()
         ball.reset_delta_velocity()
     
     

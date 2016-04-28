@@ -23,8 +23,6 @@ class Ball(object):
         x/y velocity of the ball
     delta_velocity : array
         change in the x/y velocity before being updated after collision calculations
-    status : string
-        the status of the ball
     """
     
     def __init__(self, name, mass, radius, position=np.zeros(2, dtype='float64'), velocity=np.zeros(2, dtype='float64')):
@@ -33,7 +31,6 @@ class Ball(object):
         self.position = position
         self.velocity = velocity
         self.delta_velocity = np.zeros(2, dtype='float64')
-        self.status = "Present"
         
         if mass > 0:
             self.mass = mass
@@ -65,13 +62,10 @@ class Ball(object):
         """Takes the current delta_velocity and adds it to the current velocity, resets delta_velocity back to 0"""
         self.set_velocity(self.velocity + self.delta_velocity)
         self.reset_delta_velocity()
-    
-    def remove(self):
-        self.status = "Removed"
 
   
 class Table(object):
-    """Contains the dimensions of the table and all its walls
+    """Contains the parameters of the table and its holes as well as a list of all active ball objects
     
     Parameters
     ----------
@@ -83,6 +77,12 @@ class Table(object):
         y coordinate of the bottom wall
     y_top : float
         y coordinate of the top wall
+    balls : list
+        list of all ball objects that haven't been removed through holes yet
+    holes : array
+        array of the positions of all the holes
+    hole_radius : float
+        radii of the holes
     """
     def __init__(self, xdims, ydims, hole_radius):
         self.x_left = -.5*xdims
@@ -91,10 +91,11 @@ class Table(object):
         self.y_top = .5*ydims
         self.balls = []
         
-        self.holes = np.array([[self.x_left, self.y_bottom], [self.x_right, self.y_bottom], \
+        self.hole_positions = np.array([[self.x_left, self.y_bottom], [self.x_right, self.y_bottom], \
                                [self.x_right, 0], [self.x_right, 0], \
                                [self.x_left, self.y_top], [self.x_right, self.y_top]])
         self.hole_radius = hole_radius
+        self.num_holes = len(self.holes_positions.T[0])
     
     def add_balls(self, *balls):
         for ball in balls:
@@ -105,7 +106,10 @@ class Table(object):
 
     def reset_balls(self):
         self.balls = []
-
+    
+    def all_removed(self):
+        return (len(self.balls) == 0)    # returns True if the balls list is empty
+        
         
 #----------------------------------------------------------------------------------------------------------------------------------
 # Declare the Objects
@@ -117,10 +121,12 @@ def create_objects(ball_mass=0.165, ball_radius=5.7, hole_radius = 11.4, table_x
     
     Parameters
     ----------
-    mass : float
+    ball_mass : float
         mass to set the balls to
-    radius : float
+    ball_radius : float
         radius to set the balls to
+    hole_radius : float
+        radius to set the holes to
     table_xdims : float
         x dimension extent of the table
     table_ydims : float
@@ -128,8 +134,6 @@ def create_objects(ball_mass=0.165, ball_radius=5.7, hole_radius = 11.4, table_x
     
     Returns
     -------
-    balls : list
-        list of the ball object
     table : object
     """
     #ball objects and table object
@@ -141,6 +145,6 @@ def create_objects(ball_mass=0.165, ball_radius=5.7, hole_radius = 11.4, table_x
     
     table = Table(100, 200, hole_radius)
     
-    table.add_balls(cue)
+    table.add_balls(cue, ball_1, ball_2, ball_3, ball_4)
     
     return table
