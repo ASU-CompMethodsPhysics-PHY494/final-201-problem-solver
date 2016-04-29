@@ -12,30 +12,36 @@ table_ydims = 200
 
 dtheta = 30
 break_speed = 100
-dt = .05
-max_sim_time = 500
+dt = .02
+sim_time_max = 100
+num_plot_points = .06
+
 
 #----------------------------------------------------------------------------------------------------------------------------------
 # creating the objects to use
-table = billiard_objects.create_objects(ball_mass, ball_radius, hole_radius, table_xdims, table_ydims)
+table, starting_balls = billiard_objects.create_objects(ball_mass, ball_radius, hole_radius, table_xdims, table_ydims)
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-def initialize_balls(balls, cue_velocity):
+def initialize_table(table, starting_balls, cue_velocity):
     """
     Takes the ball objects and places them in their starting positions.
-    Sets all the balls velocities to 0 except for the cue which takes on the velocity given.
-    Also sets all delta_velocities to 0 to avoid carrying its value over between simulations.
+    Sets all velocities and delta_velocities to 0. Gives the cue ball the input velocity.
+    Clears the balls list from the table object and repopulates it
     
     Parameters
     ----------
+    table : object
     balls : list
         list of all ball objects
         only affects balls with names "cue", "ball 1", "ball 2", "ball 3", or "ball 4"
     cue_velocity : array
         two valued array of the x and y velocity to give the cue
-    """"
-    for ball_i in balls:
+    """
+    table.reset_balls()
+    table.add_balls(starting_balls)
+    
+    for ball_i in table.balls:
         ball_i.reset_velocity()
         ball_i.reset_delta_velocity()
             
@@ -62,6 +68,13 @@ def speed_to_velocity(break_speed, theta):
     vy = break_speed * np.sin(theta)
     return np.array([vx, vy], dtype='float64')
     
+
+def move_balls(table, dt):
+    """Takes the current velocities of the balls and moves them based on the value of dt"""
+    for ball_i in table.balls:
+        new_position = ball_i.position + ball_i.velocity * dt
+        ball_i.set_position(new_position)
+    
     
 def ball_removal(table):
 	"""Checks the positions of all balls and holes, removes any balls that fall within the radius of any hole"""
@@ -70,29 +83,54 @@ def ball_removal(table):
 			d_sep = np.sqrt(np.sum(ball_i.position-table.hole_positions[j])**2)    # calculates the separation distance
 			if (d_sep + ball_i.radius) < table.hole_radius:
 				table.remove_ball(ball_i)
+    
 	
-	
-def single_simulation(balls, table, break_speed, theta, dt, max_sim_time):
+def single_simulation(table, starting_balls, break_speed, theta, dt, sim_time_max, plot_interval):
     """Runs a single simulation with the ball and table objects, launching the cue ball at break_speed at angle theta
     
     Parameters
     ----------
-    balls : list
-        list of all ball objects
     table : object
         contains the parameters of the table
+    starting_balls : list
+        list of ball objects to run the simulation with.
+        only works for balls with names "cue", "ball 1", "ball 2", "ball 3", or "ball 4"
     break_speed : float
         the initial speed of the cue ball
     theta : float
         the initial angle the cue ball is sent at
     dt : float
         the time step between calculations
-    max_sim_time : float
-        max time to run the simulation for, ends if the current time is greater than max_sim_time
+    sim_time_max : float
+        max time to run the simulation for
+    plot_interval : float
+        time between writing the ball positions out
+    
+    Returns
+    -------
+    sim_time : float
+        the length of time the simulation ran for, ends if either all balls are removed or if it reaches the max time
+    positions_plot : list
+        list of arrays of positions of all of the balls at times separated by plot_interval
     """
     # initialization
     cue_velocity = speed_to_velocity(break_speed, theta)
-    initialize_balls(balls, cue_velocity)
+    initialize_table(table, starting_balls, cue_velocity)
     
-    t_steps = int(max_sim_time / dt) + 1    # +1 to include first and last step
+    positions_plot = []    # made as a list because the dimensions can change in time if the balls get removed
+    t_interval = int(plot_interval/dt)
     
+    sim_time = 0
+    for t in range(t_steps):
+        if (t%t_interval) == 0:
+            positions_plot.append(table.get_ball_positions())
+        move_balls(table, dt)
+        ball_removal(table)
+        if table.all_removed():
+            break
+        collisions.wall_collisions(table)
+        collisions.ball_collisions(table)
+        table.update_ball_velocities()
+        sim_time += dt
+        
+    return sim_time, positions_plot

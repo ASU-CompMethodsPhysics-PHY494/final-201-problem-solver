@@ -13,10 +13,6 @@ class Ball(object):
     ----------
     name : string
         name of the ball
-    mass : float
-        mass of the ball
-    radius : float
-        radius of the ball
     position : array
         x/y coordinates of the ball
     velocity : array
@@ -25,23 +21,12 @@ class Ball(object):
         change in the x/y velocity before being updated after collision calculations
     """
     
-    def __init__(self, name, mass, radius, position=np.zeros(2, dtype='float64'), velocity=np.zeros(2, dtype='float64')):
-        
+    def __init__(self, name, position=np.zeros(2, dtype='float64'), velocity=np.zeros(2, dtype='float64')):
         self.name = name
         self.position = position
         self.velocity = velocity
         self.delta_velocity = np.zeros(2, dtype='float64')
-        
-        if mass > 0:
-            self.mass = mass
-        else:
-            raise ValueError("Mass needs to be positive and nonzero")
-        
-        if radius > 0:
-            self.radius = radius
-        else:
-            raise ValueError("Radius needs to be positive and nonzero")
-    
+
     def set_position(self, new_value):
         self.position = new_value
     
@@ -79,33 +64,50 @@ class Table(object):
         y coordinate of the top wall
     balls : list
         list of all ball objects that haven't been removed through holes yet
+    ball_mass : float
+        masses of the balls
+    ball_radius : float
+        radii of the balls
     holes : array
         array of the positions of all the holes
     hole_radius : float
         radii of the holes
     """
-    def __init__(self, xdims, ydims, hole_radius):
+    def __init__(self, xdims, ydims, ball_mass, ball_radius, hole_radius):
         self.x_left = -.5*xdims
         self.x_right = .5*xdims
         self.y_bottom = -.5*ydims
         self.y_top = .5*ydims
         self.balls = []
+        self.ball_mass = ball_mass
+        self.ball_radius = ball_radius
         
         self.hole_positions = np.array([[self.x_left, self.y_bottom], [self.x_right, self.y_bottom], \
                                [self.x_right, 0], [self.x_right, 0], \
                                [self.x_left, self.y_top], [self.x_right, self.y_top]])
         self.hole_radius = hole_radius
-        self.num_holes = len(self.holes_positions.T[0])
+        self.num_holes = len(self.hole_positions.T[0])
     
     def add_balls(self, *balls):
-        for ball in balls:
-            self.balls.append(ball)
+        for ball_i in balls:
+            self.balls.append(ball_i)
     
     def remove_ball(self, ball):
         self.balls.remove(ball)
 
-    def reset_balls(self):
+    def reset_balls(self, *balls):
         self.balls = []
+    
+    def get_ball_positions(self):
+        """Creates an array of the positions of all the balls"""
+        positions_array = np.zeros([len(self.balls), 2])
+        for i, ball_i in enumerate(self.balls):
+            positions_array[i] = ball_i.position
+        return positions_array
+    
+    def update_ball_velocities(self):
+        for ball in self.balls:
+            ball.update_velocity()
     
     def all_removed(self):
         return (len(self.balls) == 0)    # returns True if the balls list is empty
@@ -135,16 +137,19 @@ def create_objects(ball_mass=0.165, ball_radius=5.7, hole_radius = 11.4, table_x
     Returns
     -------
     table : object
+    starting_balls : list
+        list of balls; used for repopulating the table after a simulation
     """
     #ball objects and table object
-    cue = Ball('cue', ball_mass, ball_radius)
-    ball_1 = Ball('ball 1', ball_mass, ball_radius)
-    ball_2 = Ball('ball 2', ball_mass, ball_radius)
-    ball_3 = Ball('ball 3', ball_mass, ball_radius)
-    ball_4 = Ball('ball 4', ball_mass, ball_radius)
+    cue = Ball('cue')
+    ball_1 = Ball('ball 1')
+    ball_2 = Ball('ball 2')
+    ball_3 = Ball('ball 3')
+    ball_4 = Ball('ball 4')
     
-    table = Table(100, 200, hole_radius)
+    table = Table(100, 200, ball_mass, ball_radius, hole_radius)
     
     table.add_balls(cue, ball_1, ball_2, ball_3, ball_4)
+    starting_balls = table.balls
     
-    return table
+    return table, starting_balls

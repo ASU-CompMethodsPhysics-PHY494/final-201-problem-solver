@@ -4,9 +4,9 @@ import collisions
 from numpy.testing import (assert_almost_equal)
 
 #------------------------------------------------------------------------------
-ball_1 = billiard_objects.Ball("test ball 1", 0.165, 5.7)
-ball_2 = billiard_objects.Ball("test ball 2", 0.165, 5.7)    #balls have the same mass and radius 5.7
-table = billiard_objects.Table(100, 200, 11.4)
+ball_1 = billiard_objects.Ball("test ball 1")
+ball_2 = billiard_objects.Ball("test ball 2")
+table = billiard_objects.Table(xdims=100, ydims=200, ball_mass=0.165, ball_radius=5.7, hole_radius=11.4)
 table.add_balls(ball_1, ball_2)
 #------------------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ def test_1d_ball_collision():
     
     table.balls[0].set_velocity(np.array([2, 0]))    # ball_1 moving right at 2
     table.balls[1].set_position(np.array([5, 0]))    # ball_2 stationary at (5, 0) (within the radius of the other)
-    collisions.ball_collisions(table.balls)
+    collisions.ball_collisions(table)
     
     assert_almost_equal(table.balls[0].delta_velocity[0], -2)    # ball_1 should lose its velocity
     assert_almost_equal(table.balls[0].delta_velocity[1], 0)
@@ -40,7 +40,7 @@ def test_2d_ball_collision():
     table.balls[0].set_position(np.array([0, 2]))
     table.balls[0].set_velocity(np.array([2, 0]))    # ball_1 at (0, 2) and moving right at 2
     table.balls[1].set_position(np.array([2, 0]))    # ball_2 stationary at (2, 0)
-    collisions.ball_collisions(table.balls)
+    collisions.ball_collisions(table)
     
     assert_almost_equal(table.balls[0].delta_velocity[0], -1)    # ball_1 should lose half its velocity in the x-direction
     assert_almost_equal(table.balls[0].delta_velocity[1], 1)     # ball_1 should gain some upward velocity
