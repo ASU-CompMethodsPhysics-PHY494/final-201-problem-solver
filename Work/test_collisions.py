@@ -7,7 +7,7 @@ from numpy.testing import (assert_almost_equal)
 ball_1 = billiard_objects.Ball()
 ball_2 = billiard_objects.Ball()
 table = billiard_objects.Table(xdims=100, ydims=200, ball_mass=0.165, ball_radius=5.7, hole_radius=11.4)
-table.make_balls_list([ball_1, ball_2])
+table.set_balls_list([ball_1, ball_2])
 #------------------------------------------------------------------------------
 
 

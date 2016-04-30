@@ -85,20 +85,17 @@ class Table(object):
         self.ball_radius = ball_radius
         
         self.hole_positions = np.array([[self.x_left, self.y_bottom], [self.x_right, self.y_bottom], \
-                               [self.x_right, 0], [self.x_right, 0], \
+                               [self.x_left, 0], [self.x_right, 0], \
                                [self.x_left, self.y_top], [self.x_right, self.y_top]])
         self.hole_radius = hole_radius
         self.num_holes = len(self.hole_positions.T[0])
     
-    def make_balls_list(self, *balls):
+    def set_balls_list(self, *balls):
         self.balls = balls[0]
     
     def remove_ball(self, ball):
         if ball in self.balls:
             self.balls.remove(ball)
-
-    def reset_balls_list(self, *balls):
-        self.balls = []
     
     def get_ball_positions(self):
         """Creates an array of the positions of all the balls"""

@@ -28,7 +28,7 @@ def initialize_table(table, starting_balls, cue_velocity):
     """
     Takes the ball objects and places them in their starting positions.
     Sets all velocities and delta_velocities to 0. Gives the cue ball the input velocity.
-    Clears the balls list from the table object and repopulates it
+    Resets the balls list in the table object
     
     Parameters
     ----------
@@ -54,8 +54,7 @@ def initialize_table(table, starting_balls, cue_velocity):
     starting_balls[3].set_position(np.array([10, 50], dtype='float64'))
     starting_balls[4].set_position(np.array([20, 0], dtype='float64'))
     
-    table.reset_balls_list()
-    table.make_balls_list(starting_balls[:])
+    table.set_balls_list(starting_balls[:])
     
     
 def speed_to_velocity(break_speed, theta_degrees):
@@ -105,8 +104,6 @@ def single_simulation(table, starting_balls, break_speed, theta, dt, sim_time_ma
     
     Returns
     -------
-    sim_time : float
-        the length of time the simulation ran for, ends if either all balls are removed or if it reaches the max time
     positions_plot : list
         list of arrays of positions of all of the balls at times separated by plot_interval
     """
@@ -117,7 +114,7 @@ def single_simulation(table, starting_balls, break_speed, theta, dt, sim_time_ma
     positions_plot = []    # made as a list because the dimensions can change in time if the balls get removed
     t_interval = int(plot_interval/dt)
     
-    sim_time = 0
+    t_steps = 0
     max_t_steps = int((sim_time_max/dt))
     for t in range(max_t_steps):
         if (t%t_interval) == 0:
@@ -129,6 +126,9 @@ def single_simulation(table, starting_balls, break_speed, theta, dt, sim_time_ma
         collisions.wall_collisions(table)
         collisions.ball_collisions(table)
         table.update_ball_velocities()
-        sim_time += dt
-        
-    return sim_time, positions_plot
+        t_steps += 1
+    
+    print("Simulation ended after {0} seconds with {1} steps. {2} balls remain on the table." \
+          .format(t_steps * dt, t_steps, len(table.balls)))
+    
+    return positions_plot
