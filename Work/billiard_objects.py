@@ -88,12 +88,12 @@ class Table(object):
         self.hole_radius = hole_radius
         self.num_holes = len(self.hole_positions.T[0])
     
-    def add_balls(self, *balls):
-        for ball_i in balls:
-            self.balls.append(ball_i)
+    def make_balls_list(self, *balls):
+        self.balls = balls[0]
     
     def remove_ball(self, ball):
-        self.balls.remove(ball)
+        if ball in self.balls:
+            self.balls.remove(ball)
 
     def reset_balls(self, *balls):
         self.balls = []
@@ -111,7 +111,13 @@ class Table(object):
     
     def all_removed(self):
         return (len(self.balls) == 0)    # returns True if the balls list is empty
-        
+    
+    def all_stopped(self, precision):
+        sum_speeds = 0
+        for ball in self.balls:
+            sum_speeds += np.sqrt(np.sum(ball.velocity**2))
+        return round(sum_speeds, precision) == 0    # returns True if the sum of the speeds is 0 to 10 decimals
+    
         
 #----------------------------------------------------------------------------------------------------------------------------------
 # Declare the Objects
@@ -148,8 +154,6 @@ def create_objects(ball_mass=0.165, ball_radius=5.7, hole_radius = 11.4, table_x
     ball_4 = Ball('ball 4')
     
     table = Table(100, 200, ball_mass, ball_radius, hole_radius)
-    
-    table.add_balls(cue, ball_1, ball_2, ball_3, ball_4)
-    starting_balls = table.balls
+    starting_balls = [cue, ball_1, ball_2, ball_3, ball_4]
     
     return table, starting_balls

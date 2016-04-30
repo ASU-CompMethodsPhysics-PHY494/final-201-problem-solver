@@ -26,7 +26,8 @@ def wall_collisions(table):
 
         
 def ball_collisions(table):
-    """Takes the current positions and velocities of the balls. If their radii overlap then calculate their new velocities.
+    """Takes the current positions and velocities of the balls. If 
+    their radii overlap then calculate their new velocities.
     Updates the balls delta_velocity values at the end of the calculation
     """
     for i, ball_i in enumerate(table.balls):

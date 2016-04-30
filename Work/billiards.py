@@ -5,8 +5,8 @@ import numpy as np
 #----------------------------------------------------------------------------------------------------------------------------------
 # parameters
 ball_mass = 0.165
-ball_radius = 5.7
-hole_radius = 11.4
+ball_radius = 3
+hole_radius = 6
 table_xdims = 100
 table_ydims = 200
 
@@ -14,12 +14,13 @@ dtheta = 30
 break_speed = 100
 dt = .02
 sim_time_max = 100
-num_plot_points = .06
+plot_interval = .06
 
 
 #----------------------------------------------------------------------------------------------------------------------------------
 # creating the objects to use
-table, starting_balls = billiard_objects.create_objects(ball_mass, ball_radius, hole_radius, table_xdims, table_ydims)
+table, starting_balls = billiard_objects.create_objects(ball_mass=ball_mass, ball_radius=ball_radius, \
+                        hole_radius=hole_radius, table_xdims=table_xdims, table_ydims=table_ydims)
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -39,7 +40,7 @@ def initialize_table(table, starting_balls, cue_velocity):
         two valued array of the x and y velocity to give the cue
     """
     table.reset_balls()
-    table.add_balls(starting_balls)
+    table.make_balls_list(starting_balls[:])
     
     for ball_i in table.balls:
         ball_i.reset_velocity()
@@ -62,10 +63,11 @@ def initialize_table(table, starting_balls, cue_velocity):
             ball_i.set_position(np.array([20, 0], dtype='float64'))
     
     
-def speed_to_velocity(break_speed, theta):
-    """Converts the break speed and launch angle to x and y components of velocity"""
-    vx = break_speed * np.cos(theta)
-    vy = break_speed * np.sin(theta)
+def speed_to_velocity(break_speed, theta_degrees):
+    """Converts the break speed and launch angle to x and y components of velocity. Theta in taken degrees"""
+    theta_radians = theta_degrees * np.pi / 180
+    vx = break_speed * np.cos(theta_radians)
+    vy = break_speed * np.sin(theta_radians)
     return np.array([vx, vy], dtype='float64')
     
 
@@ -77,14 +79,14 @@ def move_balls(table, dt):
     
     
 def ball_removal(table):
-	"""Checks the positions of all balls and holes, removes any balls that fall within the radius of any hole"""
-	for ball_i in table.balls:
-		for j in range(table.num_holes):
-			d_sep = np.sqrt(np.sum(ball_i.position-table.hole_positions[j])**2)    # calculates the separation distance
-			if (d_sep + ball_i.radius) < table.hole_radius:
-				table.remove_ball(ball_i)
+    """Checks the positions of all balls and holes, removes any balls that fall within the radius of any hole"""
+    for ball_i in table.balls:
+        for j in range(table.num_holes):
+            d_sep = np.sqrt(np.sum((ball_i.position-table.hole_positions[j])**2))    # calculates the separation distance
+            if (d_sep + table.ball_radius) < table.hole_radius:
+                table.remove_ball(ball_i)
     
-	
+    
 def single_simulation(table, starting_balls, break_speed, theta, dt, sim_time_max, plot_interval):
     """Runs a single simulation with the ball and table objects, launching the cue ball at break_speed at angle theta
     
@@ -121,12 +123,13 @@ def single_simulation(table, starting_balls, break_speed, theta, dt, sim_time_ma
     t_interval = int(plot_interval/dt)
     
     sim_time = 0
-    for t in range(t_steps):
+    max_t_steps = int((sim_time_max/dt) +1)
+    for t in range(max_t_steps):
         if (t%t_interval) == 0:
             positions_plot.append(table.get_ball_positions())
         move_balls(table, dt)
         ball_removal(table)
-        if table.all_removed():
+        if table.all_removed() or table.all_stopped(10):    # checks if the sum of speeds is 0 up to 10 decimals
             break
         collisions.wall_collisions(table)
         collisions.ball_collisions(table)
