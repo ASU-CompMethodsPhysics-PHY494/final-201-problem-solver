@@ -21,12 +21,14 @@ class Ball(object):
         change in the x/y velocity before being updated after collision calculations
     """
     
-    def __init__(self, name, position=np.zeros(2, dtype='float64'), velocity=np.zeros(2, dtype='float64')):
-        self.name = name
+    def __init__(self, position=np.zeros(2, dtype='float64'), velocity=np.zeros(2, dtype='float64')):
         self.position = position
         self.velocity = velocity
         self.delta_velocity = np.zeros(2, dtype='float64')
 
+    def set_name(self, new_name):
+        self.name = new_name
+        
     def set_position(self, new_value):
         self.position = new_value
     
@@ -95,7 +97,7 @@ class Table(object):
         if ball in self.balls:
             self.balls.remove(ball)
 
-    def reset_balls(self, *balls):
+    def reset_balls_list(self, *balls):
         self.balls = []
     
     def get_ball_positions(self):
@@ -118,6 +120,19 @@ class Table(object):
             sum_speeds += np.sqrt(np.sum(ball.velocity**2))
         return round(sum_speeds, precision) == 0    # returns True if the sum of the speeds is 0 to 10 decimals
     
+    
+# temp functions for testing    
+    def get_velocities(self):
+        velocities_array = np.zeros([len(self.balls), 2])
+        for i, ball_i in enumerate(self.balls):
+            velocities_array[i] = ball_i.velocity
+        return velocities_array
+    
+    def get_delta_velocities(self):
+        delta_velocities_array = np.zeros([len(self.balls), 2])
+        for i, ball_i in enumerate(self.balls):
+            delta_velocities_array[i] = ball_i.delta_velocity
+        return delta_velocities_array
         
 #----------------------------------------------------------------------------------------------------------------------------------
 # Declare the Objects
@@ -147,11 +162,11 @@ def create_objects(ball_mass=0.165, ball_radius=5.7, hole_radius = 11.4, table_x
         list of balls; used for repopulating the table after a simulation
     """
     #ball objects and table object
-    cue = Ball('cue')
-    ball_1 = Ball('ball 1')
-    ball_2 = Ball('ball 2')
-    ball_3 = Ball('ball 3')
-    ball_4 = Ball('ball 4')
+    cue = Ball()
+    ball_1 = Ball()
+    ball_2 = Ball()
+    ball_3 = Ball()
+    ball_4 = Ball()
     
     table = Table(100, 200, ball_mass, ball_radius, hole_radius)
     starting_balls = [cue, ball_1, ball_2, ball_3, ball_4]

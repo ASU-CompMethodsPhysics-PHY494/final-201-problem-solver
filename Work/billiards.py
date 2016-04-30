@@ -33,34 +33,29 @@ def initialize_table(table, starting_balls, cue_velocity):
     Parameters
     ----------
     table : object
-    balls : list
-        list of all ball objects
-        only affects balls with names "cue", "ball 1", "ball 2", "ball 3", or "ball 4"
+    starting_balls : list
+        list of all ball objects, must contain 5 or less
     cue_velocity : array
         two valued array of the x and y velocity to give the cue
     """
-    table.reset_balls()
-    table.make_balls_list(starting_balls[:])
-    
-    for ball_i in table.balls:
+    for ball_i in starting_balls:
         ball_i.reset_velocity()
         ball_i.reset_delta_velocity()
-            
-        if ball_i.name is "cue":
-            ball_i.set_position(np.array([0, -50], dtype='float64'))
-            ball_i.set_velocity(cue_velocity)    # overwrites the reset above
-            
-        if ball_i.name is "ball 1":
-            ball_i.set_position(np.array([-20, 0], dtype='float64'))
-            
-        if ball_i.name is "ball 2":
-            ball_i.set_position(np.array([-10, 50], dtype='float64'))
-            
-        if ball_i.name is "ball 3":
-            ball_i.set_position(np.array([10, 50], dtype='float64'))
-            
-        if ball_i.name is "ball 4":
-            ball_i.set_position(np.array([20, 0], dtype='float64'))
+    
+    starting_balls[0].set_name("cue")
+    starting_balls[0].set_position(np.array([0, -50], dtype='float64'))
+    starting_balls[0].set_velocity(cue_velocity)    # overwrites the reset above
+    
+    for i, ball in enumerate(starting_balls[1:]):    # names all balls 1-4
+        ball.set_name("ball " + str(i))
+        
+    starting_balls[1].set_position(np.array([-20, 0], dtype='float64'))
+    starting_balls[2].set_position(np.array([-10, 50], dtype='float64'))
+    starting_balls[3].set_position(np.array([10, 50], dtype='float64'))
+    starting_balls[4].set_position(np.array([20, 0], dtype='float64'))
+    
+    table.reset_balls_list()
+    table.make_balls_list(starting_balls[:])
     
     
 def speed_to_velocity(break_speed, theta_degrees):
@@ -123,7 +118,7 @@ def single_simulation(table, starting_balls, break_speed, theta, dt, sim_time_ma
     t_interval = int(plot_interval/dt)
     
     sim_time = 0
-    max_t_steps = int((sim_time_max/dt) +1)
+    max_t_steps = int((sim_time_max/dt))
     for t in range(max_t_steps):
         if (t%t_interval) == 0:
             positions_plot.append(table.get_ball_positions())
