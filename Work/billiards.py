@@ -3,26 +3,6 @@ import collisions
 import numpy as np
 
 #----------------------------------------------------------------------------------------------------------------------------------
-# parameters
-ball_mass = 0.165
-ball_radius = 3
-hole_radius = 6
-table_xdims = 100
-table_ydims = 200
-
-dtheta = 30
-break_speed = 100
-dt = .02
-sim_time_max = 100
-plot_interval = .06
-
-
-#----------------------------------------------------------------------------------------------------------------------------------
-# creating the objects to use
-table, starting_balls = billiard_objects.create_objects(ball_mass=ball_mass, ball_radius=ball_radius, \
-                        hole_radius=hole_radius, table_xdims=table_xdims, table_ydims=table_ydims)
-
-#----------------------------------------------------------------------------------------------------------------------------------
 
 def initialize_table(table, starting_balls, cue_velocity):
     """

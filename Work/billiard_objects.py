@@ -76,6 +76,8 @@ class Table(object):
         radii of the holes
     """
     def __init__(self, xdims, ydims, ball_mass, ball_radius, hole_radius):
+        self.xdims = xdims
+        self.ydims = ydims
         self.x_left = -.5*xdims
         self.x_right = .5*xdims
         self.y_bottom = -.5*ydims
