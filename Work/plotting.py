@@ -20,7 +20,7 @@ def plot_time_t_positions(table, positions_plot, plot_index, table_xdims, table_
     """
     num_balls = len(positions_plot[plot_index].T[0])    # gets the number of balls at time t
     
-    plt.axes()
+    fig, ax = plt.subplots()
     
     # plotting the balls
     for i in range(num_balls):
@@ -34,4 +34,4 @@ def plot_time_t_positions(table, positions_plot, plot_index, table_xdims, table_
     plt.gca().add_patch(plt.Rectangle((table.x_left, table.y_bottom), 100, 200, fc='none'))
     
     plt.axis('scaled')
-    plt.show()
+    return ax
