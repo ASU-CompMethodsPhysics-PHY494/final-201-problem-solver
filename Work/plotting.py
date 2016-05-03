@@ -45,7 +45,7 @@ def plot_time_t_positions(table, positions_plot, plot_index, ball_color='blue', 
     return fig
 
 
-def save_all_plot_frames(table, positions_plot, ball_color='blue', hole_color='darkred', directory='animation frames', format='png'):
+def save_all_plot_frames(table, positions_plot, ball_color='blue', hole_color='darkred', directory='animation/frames', format='png'):
     """Iterates across all elements of positions_plot and plots each time. Saves each time as a frame in the directory chosen.
     table : object
         used to get the positions of the walls and holes and the radii of the balls and holes
