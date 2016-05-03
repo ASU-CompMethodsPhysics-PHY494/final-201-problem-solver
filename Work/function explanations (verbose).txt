@@ -1,0 +1,176 @@
+billiard_objects.py
+
+ball object:
+	the variables it contains are name, position, velocity, and delta velocity
+	
+	name - just the name of the ball, isn't really used in the code
+		 - can be changed with set_name
+
+	position - 2d numpy array that has the x and y coordinates of the ball
+			 - can be changed with set_position
+	
+	velocity - 2d numpy array of the x and y velocities of the ball
+			 - can be changed with set_velocity
+			 - reset_velocity sets it back to (0, 0)
+	
+	delta_velocity - 2d numpy array of changes in the x and y velocities of the ball
+				   - the collision functions add to the delta_velocity on the ball because otherwise the order you run the functions matters
+				   - add_delta_velocity takes a delta_xv and delta_vy (two values), combines them in to a 2d numpy array,
+					       and adds that array to the delta_velocity of the ball
+				   - reset_delta_velocity resets the delta_velocity back to (0, 0)
+	
+	update_velocity - sets the velocity to be the current velocity + the delta_velocity stored within the ball object
+				    - after it sets the new velocity it resets delta_velocity back to 0 so that it doesn't interfere with the next iterations
+
+
+table object:
+	__init__(self, xdims, ydims, ball_mass, ball_radius, hole_radius):
+	
+	x_left / x_right / y_bottom / y_top - coordinates for the wall boundaries, defined so that the center of the table is at (0, 0)
+										- for example x_left = -.5*xdims, and x_right = .5*xdims
+	
+	hole_positions - 6x2 numpy array that places defines the positions of the holes so that 1 is at each corner and 1 is on each side at y=0
+	
+	balls - list of balls that are currently on the table
+	
+	set_balls_list - takes an input of ball objects and sets the balls list to be that input, overwrites previous lists
+				   - for example, table.set_balls_list(cue, ball_1, ball_2) will make table.balls be [cue, ball_1, ball_2]
+	remove_ball - looks at the balls list and removes the ball object that is inputted
+				- for example, for the ball list above, table.remove_ball(cue) would make table.balls be [ball_1, ball_2]
+	
+	get_ball_positions - creates an numpy array that has the positions of all the balls on the table, dimensions change based on number of balls left
+	
+	update_ball_velocities - runs update_velocity on all active ball objects
+	
+	all_removed - used to check if the simulation should end, if no items remain in the balls list then return True
+	
+	all_stopped - also used to check if the simulation should end, sums the speeds (not velocities) of all active balls
+			    - if the sum of the speeds is 0 up to the desired number of decimals then return True
+	
+	
+create_objects(ball_mass=0.165, ball_radius=5.7, hole_radius = 11.4, table_xdims=100, table_ydims=200)
+	creates 5 balls (cue, ball_1, ball_2, ball_3, ball_4), a table object with the parameters given as an input
+	also creates a list from the 5 balls called starting_balls
+
+
+
+
+collisions.py
+
+wall_collisions(table)
+	iterates across the balls in table.balls
+	initialize a delta_xv and delta_vy to 0
+	check the balls position and add the ball radius in each of the 4 axis directions to see if the new point falls outside the boundaries
+	if a point falls outside the boundary for one axis, make its delta_v for that axis be 2 times its current component velocity
+	     but in the opposite direction
+		 
+	for example: if (ball_i.position[0] + table.ball_radius) > table.x_right:
+					delta_vx = -2*np.abs(ball_i.velocity[0])
+		this part of the function adds the ball radius to the balls x position
+		if that point lies outside of the right boundary of the table then the delta_vx is 2 times its current velocity but to the left
+	
+	once all walls are checked, the delta_vx and delta_vy are put through the add_delta_velocity function on the ball
+
+
+ball_collisions(table)
+	iterates across (i, ball_i) on table.balls, then iterates across (j, ball_j) on table.balls[i+1:]
+	this iteration sequence means that its going through all balls and not calculation collisions twice
+	for example if there were 4 balls (ball_1, ball_2, ball_3, ball_4) the order would be as follows
+		ball_1 with ball_2 -> ball_1 with ball_3 -> ball_1 with ball_4
+		ball_2 with ball_3 -> ball_2 with ball_4 -> ball_3 with ball_4
+	
+	the formula was taken from https://en.wikipedia.org/wiki/Elastic_collision#Two-dimensional but simplified for objects of the same mass
+	first it calculates vi (magnitude of velocity of ball_i), vj (same for ball_j), theta_i (direction of ball_i's velocity),
+		 theta_j (same for ball_j), phi (angle of the collision)
+	some intermedate values are calculated since they don't change between delta_xv and delta_vy calculations and shortens the later formulas
+	delta_vx_i, delta_vy_i, delta_vx_j, and delta_vy_j are calculated using the formula and added to their delta_velocity values
+
+
+
+
+billiards.py
+
+initialize_table(table, starting_balls, cue_velocity)
+	iterates across all balls in starting_balls and resets their velocities and delta_velocities
+	sets the balls names so that the first ball in the list is cue, the rest are ball_1, ball_2, etc
+	initializes the positions of all the balls to whatever is written in to the code
+	sets the first balls (cue) velocity to be the input cue_velocity
+	
+	sets table.balls to be a copy of starting_balls
+	starting_balls is used because there needs to be a way to call the ball objects back after a simulation is done
+		 because the ball objects get removed from the table.balls list
+	the reason a copy is used is because otherwise removing objects from table.balls will also remove them from starting_balls
+	
+	
+speed_to_velocity(break_speed, theta_degrees)
+	simple function that converts a speed and angle to a 2d numpy array of x and y components of velocity
+	only used because angles are used as an input to start the simulation but the code uses x and y components
+	
+
+move_balls(table, dt)
+	takes the balls current positions and changes them by their velocity times dt
+	
+
+ball_removal(table)
+	iterates across the balls and holes
+	calculates the separation distance between the center of the ball and the hole
+	if the separation distance plus the ball radius is smaller than the hole radius then remove that ball from table.balls
+	thinking of separation distance + ball radius and hole radius on the same axis makes it easier to visalize why it would work
+	
+	
+single_simulation(table, starting_balls, break_speed, theta, dt, sim_time_max, plot_interval)
+	converts break_speed and theta to an x and y component with speed_to_velocity
+	puts that cue_velocity in to intialize the table
+	
+	initializes positions_plot to be an empty list
+	defines a t_interval to be plot_interval/dt rounded to the nearest int
+		this is going to be used for plotting and using an int makes it easier to figure out when exactly to add to positions_plot
+		
+	initializes t_steps to 0
+	sets the max_t_steps to be sim_time_max/dt rounded to the nearest int
+		this is the same idea as the t_interval, this is the max number of iterations before the simulation will stop
+	
+	iterate t up to a max of max_t_steps
+	if t is a multiple of t_interval then run table.get_ball_positions to get an array of ball positions and append it to positions_plot
+	
+	run move_balls to move the balls based on their current velocities
+	run ball_removal to remove any balls that have fallen in to holes
+	run all_removed and all_stopped(10) (sum of speeds is 0 up to 10 decimals)
+		if all the balls are removed or they're all stopped (up to that precision) then break the iteration loop
+	run the two collision functions within collisions.py in order to get delta_velocities on the balls
+	run update_ball_velocities to change the delta_velocities to new velocities
+	increment t_steps by 1 so that the counter is accurate for the next step
+	
+	at the end of the iteration, print out how long the simulation lasted (in sim time), how many steps it ran for, and how many balls are left
+	
+	return the positions_plot so that it can be plotted
+	
+	
+	
+	
+plotting.py
+
+plot_time_t_positions(table, positions_plot, plot_index, ball_color='blue', hole_color='darkred')
+	plots a single frame of the positions_plot
+	plot_index is the first index on positions_plot to look at
+	the plot_index doesn't match up with the time step, plot_index of i would be at time i*plot_interval
+	
+	first the holes are plotted then the balls (so that the balls overlap the holes and not the other way around)
+	rectangle patches are added so that the holes for the circles get turned to partial circles as needed and the table boundary is shown
+	plt.axis('scaled') and plt.axis('off') are both run so that the circles appear as circles and not ellipses and axis on the edges don't appear
+	
+	return the figure at the end so that it can be saved to a file if needed
+
+
+save_all_plot_frames(table, positions_plot, ball_color='blue', hole_color='darkred', directory='animation/frames', format='png')
+	finds the max number of decimals so the number of zeros at the start can be set
+		for example, if there are 150 frames that would be saved then this value would be 3, if it goes 1500 it would be 4
+		
+	iterates i across positions_plot and runs plot_time_t_positions
+	sets frame_number to be i+1 but with the necessary number of 0s in front
+		for example, if 150 frames would be saved then i=1 would have frame_number = 001, for 1500 it would be 0001
+		
+	saves the current position plot in the format given and in the relative path given
+	the names will be "frame x.(format)"
+		for example, with the default parameters and with 150 total frames, the first file saved would be "animation/frames/frame 001.png"
+	close the current figure to prevent overflow errors if saving many hundreds of frames	
