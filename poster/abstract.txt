@@ -1,5 +1,20 @@
-Title of the final project
+Billiard Simulation - PHY494
 
-author 1, author 2, author 3
+Nathaniel Soderberg, Nik O'Brien, Kit Wing Fung
 
-Text of the abstract. It should not be longer than 200 words. Describe concisely what the problem is that you want to solve, what approach/methods you used (but keep it at a high level, don't write what you called your functions etc), and what your results are. Keep it all one paragraph. The idea is that a reader should be able to understand in 2 minutes or less what you are doing, how you are doing it, and what you get. Finish with one sentence on conclusions or future work. Finally include a statement along the following lines: Code is available at <URL> [under <LICENSE>]. --- Licensing is  optional, see https://github.com/blog/1530-choosing-an-open-source-license which will send you to http://choosealicense.com/. REPLACE ALL THE TEXT IN THIS ABSTRACT WITH YOUR OWN TITLE, AUTHOR NAMES AND ABSTRACT. THEN COMMIT AND PUT "added abstract" IN THE COMMIT MESSAGE. THE ABSTRACT IS DUE 05/03/2016 11:59 PM AZ TIME.
+Abstract:
+
+The Problem - Billiards is a game that has its roots buried in physics and geometry. However, human players are doomed to sometimes fail. Therefore the purpose of 
+this simulation is to have a computer deduce the most efficient shot given an initial setup of balls. In the development of this code certain problems arose such as; 
+implementing the holes, removing balls that fell in these holes, handling collisions, and coding the visuals.
+
+The Approach - To simplify the simulation, python objects were created to easily call the balls and table in the program. Friction was also neglected and 
+only five balls were observed, starting in predetermined positions. The program runs in a series of steps that starts by recording each ball’s position. 
+Balls are moved based on velocity, remove balls if needed, and then update positions based on collisions. 
+
+The Results - Because efficiency is the goal, the program gives amount of time and number of balls left on the table as outputs. If a certain shot angle 
+results in all of the balls being holed in the shortest amount of time that angle is declared the most efficient angle.
+
+Conclusion - With this program the computer can find the best shot given certain parameters.
+
+Code for this project is available at "https://github.com/ASU-CompMethodsPhysics-PHY494/final-billiard-simulation"
